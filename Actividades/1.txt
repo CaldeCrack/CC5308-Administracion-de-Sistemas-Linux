@@ -1,0 +1,20 @@
+Actividad opcional: Ejercicio 8
+Estudiante: Andrés Calderón Guardia
+
+Asumiendo que se usuario root y ya se tienen los grupos y carpetas creadas se debe realizar lo siguiente para cada punto:
+
+a) Los desarrolladores tengan acceso exclusivo a leer y modificar el código fuente.
+
+1. Otorgar ownership de la carpeta a developers: chown -R :developers proyectoX/src
+2. Que solo se pueda leer y modificar por developers: chmod -R 660 proyectoX/src
+
+b) Todos puedan leer la documentación, pero sólo el equipo QA pueda modificarla.
+
+1. Asignar ownership de la carpeta a qa: chown -R :qa proyectoX/doc
+2. Que solo QA pueda modificarla y el resto leerla: chmod -R 664 proyectoX/doc
+
+c) Los managers puedan agregar versiones finales ya aprobadas del software (no se menciona nada de otros así que asumo que no puedan hacer nada en esta).
+
+1. Dar ownership de la carpeta a managers: chown -R :managers proyectoX/releases
+2. Que solo los managers puedan añadir archivos a la carpeta: chmod -R 330 proyectoX/releases
+
