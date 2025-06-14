@@ -1,13 +1,15 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <limits.h>
 #include <linux/limits.h>
 #include <pwd.h>
-#include <readline/history.h>
-#include <readline/readline.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <readline/history.h>
+#include <readline/readline.h>
 
 #define HISTORY_FILE ".shell-history"
 
@@ -149,7 +151,7 @@ int execute_command(char **cmd) {
   return ret_code;
 }
 
-int main(int argc, char *argv[]) {
+int main() {
   // Set initial previous directory
   getcwd(prev_dir, sizeof(prev_dir));
 
@@ -168,7 +170,6 @@ int main(int argc, char *argv[]) {
     execute_command(cmd);
 
     // Cleanup
-    int i = 0;
     free(cmd);
     free(buf);
   }

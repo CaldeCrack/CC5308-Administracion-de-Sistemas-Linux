@@ -1,23 +1,21 @@
-## Archivos
+# Tarea 2 - Crear una shell
 
-- `shell.c`: El código fuente del programa que deberán modificar.
-- `Makefile`: Un makefile para simplificar el proceso de compilación y ejecución del shell.
+### Estudiante: Andrés Calderón Guardia
 
-## Instrucciones
+## Instrucciones de ejecución
 
-Para compilar el programa y generar el ejecutable `./shell`, utiliza el siguiente comando:
+1. Para compilar el programa y generar el ejecutable `shell`, utilizar el siguiente comando:
 
-```bash
-make
-```
+    ```bash
+    make
+    ```
 
-Si deseas compilar y ejecutar el programa en un solo paso, puedes utilizar:
+2. Luego para ejecutarlo simplemente realizar:
 
-```bash
-make run
-```
+    ```bash
+    ./shell
+    ```
 
-## Nota
+## P4
 
-La estructura del archivo `shell.c` es solo una sugerencia, pueden realizar los cambios que consideren necesarios. Es posible que también deban agregar funciones o condiciones adicionales para cumplir con los requisitos del laboratorio.
-
+Se implementó historial persistente (1.0 pt) y `cd` mejorado (0.5 pt).
