@@ -1,15 +1,35 @@
 #include <limits.h>
+#include <linux/limits.h>
+#include <pwd.h>
+#include <readline/history.h>
+#include <readline/readline.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <readline/history.h>
-#include <readline/readline.h>
+
+#define HISTORY_FILE ".shell-history"
+
+char prev_dir[PATH_MAX] = "";
+
+char *get_history_path() {
+  const char *home = getenv("HOME");
+  if (!home) {
+    struct passwd *pw = getpwuid(getuid());
+    home = pw->pw_dir;
+  }
+
+  size_t len = strlen(home) + strlen("/.shell-history") + 1;
+  char *path = malloc(len);
+  snprintf(path, len, "%s/.shell-history", home);
+  return path;
+}
 
 int split(const char *input, char **key, char **value, const char equal) {
   const char *eq = strchr(input, equal);
-  if (!eq) return 0;
+  if (!eq)
+    return 0;
 
   size_t key_len = eq - input;
   size_t value_len = strlen(eq + 1);
@@ -24,10 +44,12 @@ int split(const char *input, char **key, char **value, const char equal) {
   return 1;
 }
 
-char *read_input() {
+char *read_input(char *history_path) {
   char *input = readline("caldesh> ");
-  if (*input)
+  if (*input) {
     add_history(input);
+    write_history(history_path);
+  }
   return input;
 }
 
@@ -69,24 +91,24 @@ int execute_command_child(char **cmd) {
 int execute_command(char **cmd) {
   int ret_code = 0;
   if (!strncmp(cmd[0], "cd", 2)) { // cd
-    if (cmd[2]) {
-      fprintf(stderr, "cd: too many arguments\n");
-      return 1;
-    }
+    char cwd[PATH_MAX];
+    getcwd(cwd, sizeof(cwd));
 
-    if (cmd[1]) {
-      if (chdir(cmd[1]) != 0)
+    if (cmd[1] && !strncmp(cmd[1], "-", 1)) {
+      printf("%s\n", prev_dir);
+
+      if (chdir(prev_dir))
         perror("cd");
+      else
+        strncpy(prev_dir, cwd, PATH_MAX);
     } else {
-      if (chdir(getenv("HOME")) != 0)
+      const char *target = cmd[1] ? cmd[1] : getenv("HOME");
+      if (chdir(target))
         perror("cd");
+      else
+        strncpy(prev_dir, cwd, PATH_MAX);
     }
   } else if (!strncmp(cmd[0], "exit", 4)) { // exit
-    if (cmd[2]) {
-      fprintf(stderr, "exit: too many arguments\n");
-      return 1;
-    }
-
     int code = EXIT_SUCCESS;
     if (cmd[1]) {
       char *endptr;
@@ -96,15 +118,11 @@ int execute_command(char **cmd) {
         code = EXIT_FAILURE;
       } else
         exit(code);
-    }
+    } else
+      exit(code);
   } else if (!strncmp(cmd[0], "pwd", 3)) { // pwd
-    if (cmd[1]) {
-      fprintf(stderr, "pwd: too many arguments\n");
-      return 1;
-    }
-
     char *cwd;
-    char buffer[PATH_MAX + 1];
+    char buffer[PATH_MAX];
 
     cwd = getcwd(buffer, sizeof(buffer));
     if (cwd != NULL)
@@ -112,11 +130,6 @@ int execute_command(char **cmd) {
     else
       perror("pwd: getcwd failed");
   } else if (!strncmp(cmd[0], "export", 6)) { // export
-    if (cmd[2]) {
-      fprintf(stderr, "export: too many arguments\n");
-      return 1;
-    }
-
     char *name, *value;
     split(cmd[1], &name, &value, '=');
 
@@ -124,19 +137,9 @@ int execute_command(char **cmd) {
       perror("export");
     printf("%s\n", getenv(name));
   } else if (!strncmp(cmd[0], "unset", 5)) { // unset
-    if (cmd[2]) {
-      fprintf(stderr, "unset: too many arguments\n");
-      return 1;
-    }
-
     if (unsetenv(cmd[1]))
       perror("unset");
   } else if (!strncmp(cmd[0], "history", 7)) { // history
-    if (cmd[1]) {
-      fprintf(stderr, "history: too many arguments\n");
-      return 1;
-    }
-
     HIST_ENTRY **list = history_list();
     if (list)
       for (int i = 0; list[i]; i++)
@@ -147,8 +150,20 @@ int execute_command(char **cmd) {
 }
 
 int main(int argc, char *argv[]) {
+  // Set initial previous directory
+  getcwd(prev_dir, sizeof(prev_dir));
+
+  // Persistent history
+  char *history_path = get_history_path();
+  using_history();
+  read_history(history_path);
+
+  // Start shell
   while (1) {
-    char *buf = read_input();
+    char *buf = read_input(history_path);
+    if (!buf)
+      continue;
+
     char **cmd = parse_command(buf);
     execute_command(cmd);
 
@@ -157,5 +172,7 @@ int main(int argc, char *argv[]) {
     free(cmd);
     free(buf);
   }
+
+  free(history_path);
   return 0;
 }
