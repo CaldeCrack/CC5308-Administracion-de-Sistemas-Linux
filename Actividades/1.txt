@@ -1,7 +1,7 @@
 Actividad opcional: Ejercicio 8
 Estudiante: Andrés Calderón Guardia
 
-Asumiendo que se usuario root y ya se tienen los grupos y carpetas creadas se debe realizar lo siguiente para cada punto:
+Asumiendo que se sea usuario root y ya se tienen los grupos y carpetas creadas se debe realizar lo siguiente para cada punto:
 
 a) Los desarrolladores tengan acceso exclusivo a leer y modificar el código fuente.
 
