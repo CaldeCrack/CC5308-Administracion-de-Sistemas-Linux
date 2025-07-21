@@ -1,0 +1,14 @@
+6. Cree los siguientes grupos, con al menos 2 usuarios en cada grupo:
+- developers
+- qa
+- managers
+
+7. Cree una carpeta proyectoX , y configurela de la siguiente forma:
+- proyectoX/src : tiene el código fuente
+- proyectoX/doc : tiene documentación
+- proyectoX/releases : tiene versiones finales del proyecto
+
+8. Configure los permisos de usuarios y grupos para que:
+- Los desarrolladores tengan acceso exclusivo a leer y modificar el código fuente.
+- Todos puedan leer la documentación, pero sólo el equipo QA pueda modificarla.
+- Los managers puedan agregar versiones finales ya aprobadas del software.
